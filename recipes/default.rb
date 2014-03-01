@@ -52,6 +52,4 @@ packages.each do |pkg|
   end
 end
 
-include_recipe "slimta::config"
-
 # vim:sw=2:ts=2:sts=2:et:ai:ft=ruby:
