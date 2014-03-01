@@ -25,7 +25,9 @@
 
 include_recipe "python"
 
-python_virtualenv "/opt/slimta" do
+venv = node["slimta"]["virtualenv"]
+
+python_virtualenv venv do
   action :create
 end
 
@@ -45,7 +47,7 @@ versions = node["slimta"]["version_lock"]
 packages.each do |pkg|
   pkg_version = versions.fetch(pkg, nil)
   python_pip pkg do
-    virtualenv "/opt/slimta"
+    virtualenv venv
     version pkg_version
   end
 end

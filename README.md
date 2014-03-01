@@ -23,6 +23,12 @@ Attributes
     <th>Default</th>
   </tr>
   <tr>
+    <td><tt>['slimta']['virtualenv']</tt></td>
+    <td>String</td>
+    <td>Path where the virtualenv will be created.</td>
+    <td><tt>/opt/slimta</tt></td>
+  </tr>
+  <tr>
     <td><tt>['slimta']['exclude']</tt></td>
     <td>Array</td>
     <td>These slimta packages will not be installed by pip.</td>
