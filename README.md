@@ -2,13 +2,14 @@ slimta Cookbook
 ===============
 Install and configure slimta on a system using Chef.
 
+**NOTE:** This cookbook is incomplete!
+
 Requirements
 ------------
 
-<!--
-#### packages
-- `toaster` - slimta needs toaster to brown your bagel.
--->
+#### cookbooks
+- `python` - slimta uses the [python cookbook](https://github.com/poise/python)
+  for installation.
 
 Attributes
 ----------
@@ -21,12 +22,18 @@ Attributes
     <th>Description</th>
     <th>Default</th>
   </tr>
-  <!--<tr>
-    <td><tt>['slimta']['bacon']</tt></td>
-    <td>Boolean</td>
-    <td>whether to include bacon</td>
-    <td><tt>true</tt></td>
-  </tr>-->
+  <tr>
+    <td><tt>['slimta']['exclude']</tt></td>
+    <td>Array</td>
+    <td>These slimta packages will not be installed by pip.</td>
+    <td><tt>[]</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['slimta']['version_lock']</tt></td>
+    <td>Hash</td>
+    <td>Maps slimta package names to the version they should be locked to.</td>
+    <td><tt>{}</tt></td>
+  </tr>
 </table>
 
 Usage
