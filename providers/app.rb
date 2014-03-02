@@ -48,23 +48,27 @@ action :create do
   queue_cfg = new_resource.queue || node['slimta']['defaults']['queue']
   relay_cfg = new_resource.relay || node['slimta']['defaults']['relay']
 
+  # Create the config directory.
   cfg_dir = directory etc_dir do
     mode 0755
     recursive true
   end
   updated ||= cfg_dir.updated_by_last_action?
 
+  # Create the log directory.
   log_dir = directory logging_cfg['directory'] do
     mode 0755
     recursive true
   end
   updated ||= log_dir.updated_by_last_action?
 
+  # Create the group the process should run as.
   group = group process_cfg['group'] do
     action :create
   end
   updated ||= group.updated_by_last_action?
 
+  # Create the user the process should run as.
   user = user process_cfg['user'] do
     comment "#{ app_name } user"
     gid process_cfg['group']
@@ -73,6 +77,7 @@ action :create do
   end
   updated ||= user.updated_by_last_action?
 
+  # Create the init script.
   init = template ::File.join('/etc/init.d', app_name) do
     cookbook new_resource.cookbook
     source 'slimta.init.erb'
@@ -86,6 +91,7 @@ action :create do
   end
   updated ||= init.updated_by_last_action?
 
+  # Create the service resource.
   service = service app_name do
     supports :status => true, :start => true, :stop => true,
       :restart => true, :reload => true
@@ -93,6 +99,7 @@ action :create do
   end
   updated ||= service.updated_by_last_action?
 
+  # Create the base configuration file.
   app_cfg = template ::File.join(etc_dir, app_cfg_file) do
     cookbook new_resource.cookbook
     source 'app.conf.erb'
@@ -113,6 +120,7 @@ action :create do
   end
   updated ||= app_cfg.updated_by_last_action?
 
+  # Create the log configuration file.
   log_cfg = template ::File.join(etc_dir, log_cfg_file) do
     cookbook new_resource.cookbook
     source 'logging.conf.erb'
@@ -125,6 +133,7 @@ action :create do
   end
   updated ||= log_cfg.updated_by_last_action?
 
+  # Create the rules configuration file.
   rules_cfg = template ::File.join(etc_dir, rules_cfg_file) do
     cookbook new_resource.cookbook
     source 'rules.conf.erb'
