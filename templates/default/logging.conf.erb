@@ -1,0 +1,43 @@
+version: 1
+
+formatters: {
+  console: {
+    format: '%(levelname)-8s %(name)-15s %(message)s'
+  }
+  default: {
+    format: '%(asctime)s %(levelname)s %(process)d %(name)s %(message)s'
+  }
+}
+
+handlers: {
+  console: {
+    class: 'logging.StreamHandler'
+    level: DEBUG
+    formatter: console
+    stream: 'ext://sys.stdout'
+  }
+  file: {
+    class: 'logging.handlers.WatchedFileHandler'
+    level: DEBUG
+    formatter: default
+    filename: '<%= @logging_cfg['directory'] %>/<%= @logging_cfg['file'] %>'
+  }
+}
+
+loggers: {
+  celery: {
+    level: WARNING
+    propagate: True
+  }
+  slimta: {
+    level: DEBUG
+    propagate: True
+  }
+}
+
+root: {
+  level: DEBUG
+  handlers: [file]
+}
+
+# vim:sw=2:ts=2:sts=2:et:ai:

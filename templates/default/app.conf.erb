@@ -1,0 +1,69 @@
+process: {
+  slimta: {
+    daemon: True
+    user: <%= @process_cfg['user'] %>
+    group: <%= @process_cfg['group'] %>
+    stdout: '<%= @logging_cfg['directory'] %>/<%= @app_name %>-stdout.log'
+    stderr: '<%= @logging_cfg['directory'] %>/<%= @app_name %>-stderr.log'
+    logging: @"<%= @log_cfg_file %>"
+  }
+}
+
+rules: @"<%= @rules_cfg_file %>"
+
+edge: {
+<% @edge_cfg.each do |group, vals| -%>
+  '<%= group %>': {
+    type: <%= vals['type'] %>,
+  <% if vals.has_key?('queue') and vals['queue'] -%>
+    queue: '<%= vals['queue'] %>',
+  <% else -%>
+    queue: '<%= @queue_cfg.keys[0] %>',
+  <% end -%>
+    
+    listener: {
+      interface: '<%= vals['interface'] %>',
+      port: <%= vals['port'] %>,
+    },
+  <% if vals.has_key?('rules') and vals['rules'] -%>
+    rules: $rules.<%= vals['rules'] %>,
+  <% else -%>
+    rules: $rules.<%= @rules_cfg.keys[0] %>,
+  <% end -%>
+  },
+
+<% end -%>
+}
+
+queue: {
+<% @queue_cfg.each do |group, vals| -%>
+  '<%= group %>': {
+    type: <%= vals['type'] %>,
+  <% if vals.has_key?('prefix') and vals['prefix'] -%>
+    prefix: '<%= vals['prefix'] %>',
+  <% end -%>
+    policies: [
+  <% vals['policies'].each do |policy| -%>
+      {type: '<%= policy['type'] %>'},
+  <% end -%>
+    ],
+  },
+
+<% end -%>
+}
+
+relay: {
+<% @relay_cfg.each do |group, vals| -%>
+  '<%= group %>': {
+    type: <%= vals['type'] %>,
+  <% if vals.has_key?('ehlo_as') and vals['ehlo_as'] -%>
+    ehlo_as: '<%= vals['ehlo_as'] %>',
+  <% elsif ['mx', 'static'].include?(vals['type']) -%>
+    ehlo_as: '<%= node['fqdn'] %>',
+  <% end -%>
+  },
+
+<% end -%>
+}
+
+# vim:sw=2:ts=2:sts=2:et:ai:
