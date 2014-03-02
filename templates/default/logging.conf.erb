@@ -20,7 +20,7 @@ handlers: {
     class: 'logging.handlers.WatchedFileHandler'
     level: DEBUG
     formatter: default
-    filename: '<%= @logging_cfg['directory'] %>/<%= @logging_cfg['file'] %>'
+    filename: '<%= @log_dir %>/<%= @log_file %>'
   }
 }
 

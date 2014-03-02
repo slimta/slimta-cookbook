@@ -10,6 +10,13 @@
   <% if vals.fetch('reject_spam', nil) == 'spamassassin' -%>
   reject_spam: {type: spamassassin},
   <% end -%>
+  <% if vals.has_key?('require_credentials') -%>
+  require_credentials: {
+    <% vals['require_credentials'].each do |username, password| -%>
+    '<%= username %>': '<%= password %>',
+    <% end -%>
+  }
+  <% end -%>
   <% if vals.has_key?('only_recipients') -%>
   only_recipients: [
     <% vals['only_recipients'].each do |rcpt| -%>

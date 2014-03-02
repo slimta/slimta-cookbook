@@ -31,16 +31,7 @@ python_virtualenv venv do
   action :create
 end
 
-packages = Set.new [
-  'python-slimta',
-  'python-slimta-spf',
-  'python-slimta-piperelay',
-  'python-slimta-diskstorage',
-  'python-slimta-redisstorage',
-  'python-slimta-celeryqueue',
-  'python-slimta-cloudstorage',
-  'slimta',
-] - node['slimta']['exclude']
+packages = ['python-slimta', 'slimta'] + node['slimta']['install_extensions']
 
 versions = node['slimta']['version_lock']
 

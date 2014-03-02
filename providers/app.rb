@@ -32,21 +32,18 @@ use_inline_resources
 action :create do
   updated = false
   app_name = new_resource.app_name
+  etc_dir = new_resource.etc_dir || '/etc/slimta'
   executable = new_resource.executable || \
     ::File.join(node['slimta']['virtualenv'], 'bin/slimta')
-  etc_dir = new_resource.etc_dir || \
-    ::File.join(node['slimta']['virtualenv'], 'etc')
 
   app_cfg_file = new_resource.conf_files.fetch('app', "#{app_name}.conf")
   log_cfg_file = new_resource.conf_files.fetch('logging', 'logging.conf')
   rules_cfg_file = new_resource.conf_files.fetch('rules', 'rules.conf')
 
-  process_cfg = new_resource.process || node['slimta']['defaults']['process']
-  logging_cfg = new_resource.logging || node['slimta']['defaults']['logging']
-  edge_cfg = new_resource.edge || node['slimta']['defaults']['edge']
-  rules_cfg = new_resource.rules || node['slimta']['defaults']['rules']
-  queue_cfg = new_resource.queue || node['slimta']['defaults']['queue']
-  relay_cfg = new_resource.relay || node['slimta']['defaults']['relay']
+  edge_info = new_resource.edge || {}
+  rules_info = new_resource.rules || {}
+  queue_info = new_resource.queue || {}
+  relay_info = new_resource.relay || {}
 
   # Create the config directory.
   cfg_dir = directory etc_dir do
@@ -56,22 +53,22 @@ action :create do
   updated ||= cfg_dir.updated_by_last_action?
 
   # Create the log directory.
-  log_dir = directory logging_cfg['directory'] do
+  log_dir = directory new_resource.log_dir do
     mode 0755
     recursive true
   end
   updated ||= log_dir.updated_by_last_action?
 
   # Create the group the process should run as.
-  group = group process_cfg['group'] do
+  group = group new_resource.group do
     action :create
   end
   updated ||= group.updated_by_last_action?
 
   # Create the user the process should run as.
-  user = user process_cfg['user'] do
+  user = user new_resource.user do
     comment "#{ app_name } user"
-    gid process_cfg['group']
+    gid new_resource.group
     shell '/bin/false'
     action :create
   end
@@ -108,14 +105,15 @@ action :create do
       :app_name => app_name,
       :log_cfg_file => log_cfg_file,
       :rules_cfg_file => rules_cfg_file,
-      :process_cfg => process_cfg,
-      :logging_cfg => logging_cfg,
-      :edge_cfg => edge_cfg,
-      :rules_cfg => rules_cfg,
-      :queue_cfg => queue_cfg,
-      :relay_cfg => relay_cfg,
+      :user => new_resource.user,
+      :group => new_resource.group,
+      :log_dir => new_resource.log_dir,
+      :log_file => new_resource.log_file,
+      :edge_cfg => edge_info,
+      :rules_cfg => rules_info,
+      :queue_cfg => queue_info,
+      :relay_cfg => relay_info,
     })
-    notifies :restart, "service[#{ app_name }]"
     action :create
   end
   updated ||= app_cfg.updated_by_last_action?
@@ -127,24 +125,27 @@ action :create do
     mode 0644
     variables({
       :app_name => app_name,
-      :logging_cfg => logging_cfg,
+      :log_dir => new_resource.log_dir,
+      :log_file => new_resource.log_file || "#{ app_name }.log",
     })
     action :create
   end
   updated ||= log_cfg.updated_by_last_action?
 
   # Create the rules configuration file.
-  rules_cfg = template ::File.join(etc_dir, rules_cfg_file) do
-    cookbook new_resource.cookbook
-    source 'rules.conf.erb'
-    mode 0644
-    variables({
-      :app_name => app_name,
-      :rules_cfg => rules_cfg,
-    })
-    action :create
+  if not rules_info.empty?
+    rules_cfg = template ::File.join(etc_dir, rules_cfg_file) do
+      cookbook new_resource.cookbook
+      source 'rules.conf.erb'
+      mode 0644
+      variables({
+        :app_name => app_name,
+        :rules_cfg => rules_info,
+      })
+      action :create
+    end
+    updated ||= rules_cfg.updated_by_last_action?
   end
-  updated ||= rules_cfg.updated_by_last_action?
 
   new_resource.updated_by_last_action(updated)
 end

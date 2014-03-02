@@ -1,69 +1,94 @@
 process: {
   slimta: {
     daemon: True
-    user: <%= @process_cfg['user'] %>
-    group: <%= @process_cfg['group'] %>
-    stdout: '<%= @logging_cfg['directory'] %>/<%= @app_name %>-stdout.log'
-    stderr: '<%= @logging_cfg['directory'] %>/<%= @app_name %>-stderr.log'
+    user: <%= @user %>
+    group: <%= @group %>
+    stdout: '<%= @log_dir %>/<%= @app_name %>-stdout.log'
+    stderr: '<%= @log_dir %>/<%= @app_name %>-stderr.log'
     logging: @"<%= @log_cfg_file %>"
   }
 }
 
+<% if not @rules_cfg.empty? -%>
 rules: @"<%= @rules_cfg_file %>"
+<% end -%>
 
+<% if not @edge_cfg.empty? -%>
 edge: {
-<% @edge_cfg.each do |group, vals| -%>
+  <% @edge_cfg.each do |group, vals| -%>
   '<%= group %>': {
     type: <%= vals['type'] %>,
-  <% if vals.has_key?('queue') and vals['queue'] -%>
+    <% if vals.has_key?('queue') and vals['queue'] -%>
     queue: '<%= vals['queue'] %>',
-  <% else -%>
+    <% elsif not @queue_cfg.empty? -%>
     queue: '<%= @queue_cfg.keys[0] %>',
-  <% end -%>
-    
+    <% end -%>
     listener: {
       interface: '<%= vals['interface'] %>',
       port: <%= vals['port'] %>,
     },
-  <% if vals.has_key?('rules') and vals['rules'] -%>
+    <% if vals.has_key?('rules') and vals['rules'] -%>
     rules: $rules.<%= vals['rules'] %>,
-  <% else -%>
+    <% else -%>
     rules: $rules.<%= @rules_cfg.keys[0] %>,
-  <% end -%>
+    <% end -%>
   },
 
-<% end -%>
+  <% end -%>
 }
 
+<% end -%>
+<% if not @queue_cfg.empty? -%>
 queue: {
-<% @queue_cfg.each do |group, vals| -%>
+  <% @queue_cfg.each do |group, vals| -%>
   '<%= group %>': {
     type: <%= vals['type'] %>,
-  <% if vals.has_key?('prefix') and vals['prefix'] -%>
+    <% if vals.has_key?('relay') and vals['relay'] -%>
+    relay: '<%= vals['relay'] %>',
+    <% elsif not @relay_cfg.empty? -%>
+    relay: '<%= @relay_cfg.keys[0] %>',
+    <% end -%>
+    <% if vals.has_key?('prefix') and vals['prefix'] -%>
     prefix: '<%= vals['prefix'] %>',
-  <% end -%>
+    <% end -%>
+    <% if vals.has_key?('policies') -%>
     policies: [
-  <% vals['policies'].each do |policy| -%>
+      <% vals['policies'].each do |policy| -%>
       {type: '<%= policy['type'] %>'},
-  <% end -%>
+      <% end -%>
     ],
+    <% end -%>
+    <% if vals.has_key?('retry') and not vals['retry'].empty? -%>
+    retry: {
+      <% if vals['retry'].has_key?('maximum') -%>
+      maximum: <%= vals['retry']['maximum'] %>
+      <% end -%>
+      <% if vals['retry'].has_key?('delay') -%>
+      delay: '<%= vals['retry']['delay'] %>'
+      <% end -%>
+    }
+    <% end -%>
+
   },
 
-<% end -%>
+  <% end -%>
 }
 
+<% end -%>
+<% if not @relay_cfg.empty? -%>
 relay: {
-<% @relay_cfg.each do |group, vals| -%>
+  <% @relay_cfg.each do |group, vals| -%>
   '<%= group %>': {
     type: <%= vals['type'] %>,
-  <% if vals.has_key?('ehlo_as') and vals['ehlo_as'] -%>
+    <% if vals.has_key?('ehlo_as') and vals['ehlo_as'] -%>
     ehlo_as: '<%= vals['ehlo_as'] %>',
-  <% elsif ['mx', 'static'].include?(vals['type']) -%>
+    <% elsif ['mx', 'static'].include?(vals['type']) -%>
     ehlo_as: '<%= node['fqdn'] %>',
-  <% end -%>
+    <% end -%>
   },
 
-<% end -%>
+  <% end -%>
 }
 
+<% end -%>
 # vim:sw=2:ts=2:sts=2:et:ai:
