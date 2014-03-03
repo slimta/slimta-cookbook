@@ -72,7 +72,7 @@ queue: {
     policies: [
       <% vals['policies'].each do |policy| -%>
         <% if policy['type'] == 'forward' -%>  
-      {type: 'forward', mapping: {'.*': '<%= policy['everything'] %>'}},
+      {type: forward, mapping: {'.*': '<%= policy['everything'] %>'}},
         <% else -%>
       {type: <%= policy['type'] %>},
         <% end -%>
@@ -103,7 +103,7 @@ relay: {
     type: <%= vals['type'] %>,
     <% if vals.has_key?('ehlo_as') and vals['ehlo_as'] -%>
     ehlo_as: '<%= vals['ehlo_as'] %>',
-    <% elsif ['mx', 'static'].include?(vals['type']) -%>
+    <% else -%>
     ehlo_as: '<%= node['fqdn'] %>',
     <% end -%>
     <% if vals.has_key?('tls') and vals['tls'] -%>
