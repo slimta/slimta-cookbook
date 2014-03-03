@@ -71,7 +71,11 @@ queue: {
     <% if vals.has_key?('policies') -%>
     policies: [
       <% vals['policies'].each do |policy| -%>
-      {type: '<%= policy['type'] %>'},
+        <% if policy['type'] == 'forward' -%>  
+      {type: 'forward', mapping: {'.*': '<%= policy['everything'] %>'}},
+        <% else -%>
+      {type: <%= policy['type'] %>},
+        <% end -%>
       <% end -%>
     ],
     <% end -%>
