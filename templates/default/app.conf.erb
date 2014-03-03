@@ -13,6 +13,18 @@ process: {
 rules: @"<%= @rules_cfg_file %>"
 <% end -%>
 
+<% if not @tls_cfg.empty? -%>
+tls: {
+  <% @tls_cfg.each do |group, vals| -%>
+  '<%= group %>': {
+    keyfile: '<%= vals['keyfile'] %>',
+    certfile: '<%= vals['certfile'] %>',
+  },
+
+  <% end -%>
+}
+
+<% end -%>
 <% if not @edge_cfg.empty? -%>
 edge: {
   <% @edge_cfg.each do |group, vals| -%>
@@ -27,6 +39,11 @@ edge: {
       interface: '<%= vals['interface'] %>',
       port: <%= vals['port'] %>,
     },
+    <% if vals.has_key?('tls') and vals['tls'] -%>
+    tls: $tls.<%= vals['tls'] %>,
+    <% elsif not @tls_cfg.empty? -%>
+    tls: $tls.<%= @tls_cfg.keys[0] %>,
+    <% end -%>
     <% if vals.has_key?('rules') and vals['rules'] -%>
     rules: $rules.<%= vals['rules'] %>,
     <% else -%>
@@ -84,6 +101,11 @@ relay: {
     ehlo_as: '<%= vals['ehlo_as'] %>',
     <% elsif ['mx', 'static'].include?(vals['type']) -%>
     ehlo_as: '<%= node['fqdn'] %>',
+    <% end -%>
+    <% if vals.has_key?('tls') and vals['tls'] -%>
+    tls: $tls.<%= vals['tls'] %>,
+    <% elsif not @tls_cfg.empty? -%>
+    tls: $tls.<%= @tls_cfg.keys[0] %>,
     <% end -%>
   },
 

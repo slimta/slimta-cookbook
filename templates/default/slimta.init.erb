@@ -1,6 +1,6 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides:          <%= @app_name %>
+# Provides:          <%= @service_name %>
 # Required-Start:
 # Required-Stop:
 # Default-Start:     2 3 4 5
@@ -13,11 +13,11 @@
 . /lib/lsb/init-functions
 
 # Service name (for display)
-NAME=<%= @app_name %>
+NAME=<%= @service_name %>
 # Path to the daemon
 DAEMON=<%= @executable %>
 # PID file for this instance of the daemon
-PIDFILE=/var/run/<%= @app_name %>.pid
+PIDFILE=/var/run/<%= @service_name %>.pid
 # Config file for the service
 CONFIGFILE=<%= @app_cfg_file %>
 

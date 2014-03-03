@@ -32,6 +32,7 @@ use_inline_resources
 action :create do
   updated = false
   app_name = new_resource.app_name
+  service_name = new_resource.service_name || app_name
   etc_dir = new_resource.etc_dir || '/etc/slimta'
   executable = new_resource.executable || \
     ::File.join(node['slimta']['virtualenv'], 'bin/slimta')
@@ -40,6 +41,7 @@ action :create do
   log_cfg_file = new_resource.conf_files.fetch('logging', 'logging.conf')
   rules_cfg_file = new_resource.conf_files.fetch('rules', 'rules.conf')
 
+  tls_info = new_resource.tls || {}
   edge_info = new_resource.edge || {}
   rules_info = new_resource.rules || {}
   queue_info = new_resource.queue || {}
@@ -75,12 +77,13 @@ action :create do
   updated ||= user.updated_by_last_action?
 
   # Create the init script.
-  init = template ::File.join('/etc/init.d', app_name) do
+  init = template ::File.join('/etc/init.d', service_name) do
     cookbook new_resource.cookbook
     source 'slimta.init.erb'
     mode 0755
     variables({
       :app_name => app_name,
+      :service_name => service_name,
       :app_cfg_file => ::File.join(etc_dir, app_cfg_file),
       :executable => executable
     })
@@ -89,7 +92,7 @@ action :create do
   updated ||= init.updated_by_last_action?
 
   # Create the service resource.
-  service = service app_name do
+  service = service service_name do
     supports :status => true, :start => true, :stop => true,
       :restart => true, :reload => true
     action :nothing
@@ -109,6 +112,7 @@ action :create do
       :group => new_resource.group,
       :log_dir => new_resource.log_dir,
       :log_file => new_resource.log_file,
+      :tls_cfg => tls_info,
       :edge_cfg => edge_info,
       :rules_cfg => rules_info,
       :queue_cfg => queue_info,

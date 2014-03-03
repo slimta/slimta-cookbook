@@ -28,6 +28,7 @@ default_action :create
 
 attribute :app_name, :name_attribute => true, :kind_of => String,
   :required => true
+attribute :service_name, :kind_of => String
 attribute :executable, :kind_of => String
 attribute :etc_dir, :kind_of => String
 attribute :conf_files, :kind_of => Hash, :default => {}
@@ -35,6 +36,7 @@ attribute :user, :kind_of => String, :default => 'slimta'
 attribute :group, :kind_of => String, :default => 'slimta'
 attribute :log_dir, :kind_of => String, :default => '/var/log/slimta'
 attribute :log_file, :kind_of => String
+attribute :tls, :kind_of => [Hash, NilClass], :default => nil
 attribute :edge, :kind_of => [Hash, NilClass], :default => nil
 attribute :rules, :kind_of => [Hash, NilClass], :default => nil
 attribute :queue, :kind_of => [Hash, NilClass], :default => nil
