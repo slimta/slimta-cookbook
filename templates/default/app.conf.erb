@@ -44,6 +44,9 @@ edge: {
     <% elsif not @tls_cfg.empty? -%>
     tls: $tls.<%= @tls_cfg.keys[0] %>,
     <% end -%>
+    <% if vals.has_key?('tls_immediately') and vals['tls_immediately'] -%>
+    tls_immediately: True,
+    <% end -%>
     <% if vals.has_key?('rules') and vals['rules'] -%>
     rules: $rules.<%= vals['rules'] %>,
     <% else -%>
