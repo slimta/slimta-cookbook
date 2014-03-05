@@ -61,21 +61,6 @@ action :create do
   end
   updated ||= log_dir.updated_by_last_action?
 
-  # Create the group the process should run as.
-  group = group new_resource.group do
-    action :create
-  end
-  updated ||= group.updated_by_last_action?
-
-  # Create the user the process should run as.
-  user = user new_resource.user do
-    comment "#{ app_name } user"
-    gid new_resource.group
-    shell '/bin/false'
-    action :create
-  end
-  updated ||= user.updated_by_last_action?
-
   # Create the init script.
   init = template ::File.join('/etc/init.d', service_name) do
     cookbook new_resource.cookbook
