@@ -40,6 +40,10 @@ packages.each do |pkg|
   python_pip pkg do
     virtualenv venv
     version pkg_version
+    action :upgrade
+    node['slimta']['services'].each do |service|
+      notifies :restart, "service[#{ service }]"
+    end
   end
 end
 

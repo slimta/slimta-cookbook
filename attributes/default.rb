@@ -1,13 +1,9 @@
 
+default['slimta']['services'] = []
+
 default['slimta']['virtualenv'] = '/opt/slimta'
 
-default['slimta']['install_extensions'] = [
-  'python-slimta-spf',
-  'python-slimta-piperelay',
-  'python-slimta-diskstorage',
-  'python-slimta-redisstorage',
-]
-
+default['slimta']['install_extensions'] = []
 default['slimta']['version_lock'] = {}
 
 default['slimta']['user'] = 'slimta'
