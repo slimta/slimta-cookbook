@@ -33,10 +33,9 @@ rules:
       - '<%= rcpt %>'
       <% end -%>
     <% end -%>
-
   <% end -%>
-<% end -%>
 
+<% end -%>
 <% if not @tls_cfg.empty? -%>
 tls:
   <% @tls_cfg.each do |group, vals| -%>
@@ -107,7 +106,6 @@ queue:
       delay: '<%= vals['retry']['delay'] %>'
       <% end -%>
     <% end -%>
-
   <% end -%>
 
 <% end -%>
