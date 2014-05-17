@@ -37,9 +37,8 @@ action :create do
   executable = new_resource.executable || \
     ::File.join(node['slimta']['virtualenv'], 'bin/slimta')
 
-  app_cfg_file = new_resource.conf_files.fetch('app', "#{app_name}.conf")
-  log_cfg_file = new_resource.conf_files.fetch('logging', 'logging.conf')
-  rules_cfg_file = new_resource.conf_files.fetch('rules', 'rules.conf')
+  app_cfg_file = new_resource.conf_files.fetch('app', "#{app_name}.yaml")
+  log_cfg_file = new_resource.conf_files.fetch('logging', 'logging.yaml')
 
   tls_info = new_resource.tls || {}
   edge_info = new_resource.edge || {}
@@ -87,12 +86,11 @@ action :create do
   # Create the base configuration file.
   app_cfg = template ::File.join(etc_dir, app_cfg_file) do
     cookbook new_resource.cookbook
-    source 'app.conf.erb'
+    source 'app.yaml.erb'
     mode 0644
     variables({
       :app_name => app_name,
       :log_cfg_file => log_cfg_file,
-      :rules_cfg_file => rules_cfg_file,
       :user => new_resource.user,
       :group => new_resource.group,
       :log_dir => new_resource.log_dir,
@@ -110,7 +108,7 @@ action :create do
   # Create the log configuration file.
   log_cfg = template ::File.join(etc_dir, log_cfg_file) do
     cookbook new_resource.cookbook
-    source 'logging.conf.erb'
+    source 'logging.yaml.erb'
     mode 0644
     variables({
       :app_name => app_name,
@@ -120,21 +118,6 @@ action :create do
     action :create
   end
   updated ||= log_cfg.updated_by_last_action?
-
-  # Create the rules configuration file.
-  if not rules_info.empty?
-    rules_cfg = template ::File.join(etc_dir, rules_cfg_file) do
-      cookbook new_resource.cookbook
-      source 'rules.conf.erb'
-      mode 0644
-      variables({
-        :app_name => app_name,
-        :rules_cfg => rules_info,
-      })
-      action :create
-    end
-    updated ||= rules_cfg.updated_by_last_action?
-  end
 
   new_resource.updated_by_last_action(updated)
 end

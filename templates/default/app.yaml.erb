@@ -1,0 +1,132 @@
+process:
+  slimta: &process_slimta
+    daemon: true
+    user: <%= @user %>
+    group: <%= @group %>
+    stdout: '<%= @log_dir %>/<%= @app_name %>-stdout.log'
+    stderr: '<%= @log_dir %>/<%= @app_name %>-stderr.log'
+    logging: !include <%= @log_cfg_file %>
+
+<% if not @rules_cfg.empty? -%>
+rules:
+  <% @rules_cfg.each do |group, vals| -%>
+  <%= group %>: &rules_<%= group %>
+    banner: '<%= vals['banner'] %>'
+    <% if vals.has_key?('dnsbl') -%>
+    dnsbl: <%= vals['dnsbl'] %>
+    <% end -%>
+    <% if vals.has_key?('reject_spf') -%>
+    reject_spf: [<%= vals['reject_spf'].join(', ') %>]
+    <% end -%>
+    <% if vals.fetch('reject_spam', nil) == 'spamassassin' -%>
+    reject_spam: {type: spamassassin}
+    <% end -%>
+    <% if vals.has_key?('require_credentials') -%>
+    require_credentials:
+      <% vals['require_credentials'].each do |username, password| -%>
+      '<%= username %>': '<%= password %>'
+      <% end -%>
+    <% end -%>
+    <% if vals.has_key?('only_recipients') -%>
+    only_recipients:
+      <% vals['only_recipients'].each do |rcpt| -%>
+      - '<%= rcpt %>'
+      <% end -%>
+    <% end -%>
+
+  <% end -%>
+<% end -%>
+
+<% if not @tls_cfg.empty? -%>
+tls:
+  <% @tls_cfg.each do |group, vals| -%>
+  <%= group %>: &tls_<%= group %>
+    keyfile: '<%= vals['keyfile'] %>'
+    certfile: '<%= vals['certfile'] %>'
+  <% end -%>
+
+<% end -%>
+<% if not @edge_cfg.empty? -%>
+edge:
+  <% @edge_cfg.each do |group, vals| -%>
+  <%= group %>: &edge_<%= group %>
+    type: <%= vals['type'] %>
+    <% if vals.has_key?('queue') and vals['queue'] -%>
+    queue: <%= vals['queue'] %>
+    <% elsif not @queue_cfg.empty? -%>
+    queue: <%= @queue_cfg.keys[0] %>
+    <% end -%>
+    listener:
+      interface: '<%= vals['interface'] %>'
+      port: <%= vals['port'] %>
+    <% if vals.has_key?('tls') and vals['tls'] -%>
+    tls: *tls_<%= vals['tls'] %>
+    <% elsif not @tls_cfg.empty? -%>
+    tls: *tls_<%= @tls_cfg.keys[0] %>
+    <% end -%>
+    <% if vals.has_key?('tls_immediately') and vals['tls_immediately'] -%>
+    tls_immediately: true
+    <% end -%>
+    <% if vals.has_key?('rules') and vals['rules'] -%>
+    rules: *rules_<%= vals['rules'] %>
+    <% else -%>
+    rules: *rules_<%= @rules_cfg.keys[0] %>
+    <% end -%>
+  <% end -%>
+
+<% end -%>
+<% if not @queue_cfg.empty? -%>
+queue:
+  <% @queue_cfg.each do |group, vals| -%>
+  <%= group %>: &queue_<%= group %>
+    type: <%= vals['type'] %>
+    <% if vals.has_key?('relay') and vals['relay'] -%>
+    relay: <%= vals['relay'] %>
+    <% elsif not @relay_cfg.empty? -%>
+    relay: <%= @relay_cfg.keys[0] %>
+    <% end -%>
+    <% if vals.has_key?('prefix') and vals['prefix'] -%>
+    prefix: '<%= vals['prefix'] %>'
+    <% end -%>
+    <% if vals.has_key?('policies') -%>
+    policies:
+      <% vals['policies'].each do |policy| -%>
+        <% if policy['type'] == 'forward' -%>  
+      - {type: forward, mapping: {'.*': '<%= policy['everything'] %>'}}
+        <% else -%>
+      - {type: <%= policy['type'] %>}
+        <% end -%>
+      <% end -%>
+    <% end -%>
+    <% if vals.has_key?('retry') and not vals['retry'].empty? -%>
+    retry:
+      <% if vals['retry'].has_key?('maximum') -%>
+      maximum: <%= vals['retry']['maximum'] %>
+      <% end -%>
+      <% if vals['retry'].has_key?('delay') -%>
+      delay: '<%= vals['retry']['delay'] %>'
+      <% end -%>
+    <% end -%>
+
+  <% end -%>
+
+<% end -%>
+<% if not @relay_cfg.empty? -%>
+relay:
+  <% @relay_cfg.each do |group, vals| -%>
+  <%= group %>: &relay_<%= group %>
+    type: <%= vals['type'] %>
+    <% if vals.has_key?('ehlo_as') and vals['ehlo_as'] -%>
+    ehlo_as: '<%= vals['ehlo_as'] %>'
+    <% else -%>
+    ehlo_as: <%= node['fqdn'] %>
+    <% end -%>
+    <% if vals.has_key?('tls') and vals['tls'] -%>
+    tls: *tls_<%= vals['tls'] %>
+    <% elsif not @tls_cfg.empty? -%>
+    tls: *tls_<%= @tls_cfg.keys[0] %>
+    <% end -%>
+  <% end -%>
+
+<% end -%>
+# vim:sw=2:ts=2:sts=2:et:ai:
