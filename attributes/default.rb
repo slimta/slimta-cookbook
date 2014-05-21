@@ -4,6 +4,7 @@ default['slimta']['services'] = []
 default['slimta']['virtualenv'] = '/opt/slimta'
 
 default['slimta']['install_extensions'] = []
+default['slimta']['package_locations'] = {}
 default['slimta']['version_lock'] = {}
 
 default['slimta']['user'] = 'slimta'

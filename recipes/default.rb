@@ -33,11 +33,13 @@ end
 
 packages = ['python-slimta', 'slimta'] + node['slimta']['install_extensions']
 
+package_locations = node['slimta']['package_locations']
 versions = node['slimta']['version_lock']
 
 packages.each do |pkg|
   pkg_version = versions.fetch(pkg, nil)
-  python_pip pkg do
+  pkg_source = package_locations.fetch(pkg, pkg)
+  python_pip pkg_source do
     virtualenv venv
     version pkg_version
     action :upgrade
