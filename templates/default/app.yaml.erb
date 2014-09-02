@@ -91,9 +91,13 @@ queue:
     policies:
       <% vals['policies'].each do |policy| -%>
         <% if policy['type'] == 'forward' -%>  
-      - {type: forward, mapping: {'.*': '<%= policy['everything'] %>'}}
+      - type: forward
+        mapping:
+          <% policy['mapping'].sort.each do |pattern, dest| -%>
+          '<%= pattern %>': '<%= dest %>'
+          <% end -%>
         <% else -%>
-      - {type: <%= policy['type'] %>}
+      - type: <%= policy['type'] %>
         <% end -%>
       <% end -%>
     <% end -%>
@@ -123,6 +127,9 @@ relay:
     tls: *tls_<%= vals['tls'] %>
     <% elsif not @tls_cfg.empty? -%>
     tls: *tls_<%= @tls_cfg.keys[0] %>
+    <% end -%>
+    <% if vals.has_key?('path') -%>
+    path: <%= vals['path'] %>
     <% end -%>
   <% end -%>
 

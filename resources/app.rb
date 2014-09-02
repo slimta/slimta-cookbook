@@ -32,8 +32,8 @@ attribute :service_name, :kind_of => String
 attribute :executable, :kind_of => String
 attribute :etc_dir, :kind_of => String
 attribute :conf_files, :kind_of => Hash, :default => {}
-attribute :user, :kind_of => String, :default => node['slimta']['user']
-attribute :group, :kind_of => String, :default => node['slimta']['group']
+attribute :user, :kind_of => String, :default => 'slimta'
+attribute :group, :kind_of => String, :default => 'slimta'
 attribute :log_dir, :kind_of => String, :default => '/var/log/slimta'
 attribute :log_file, :kind_of => String
 attribute :tls, :kind_of => [Hash, NilClass], :default => nil

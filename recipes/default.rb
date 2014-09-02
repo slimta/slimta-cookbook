@@ -49,15 +49,4 @@ packages.each do |pkg|
   end
 end
 
-group node['slimta']['group'] do
-  action :create
-end
-
-user node['slimta']['user'] do
-  comment 'slimta user'
-  gid node['slimta']['group']
-  shell '/bin/false'
-  action :create
-end
-
 # vim:sw=2:ts=2:sts=2:et:ai:ft=ruby:
