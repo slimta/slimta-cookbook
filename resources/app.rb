@@ -36,11 +36,12 @@ attribute :user, :kind_of => String, :default => 'slimta'
 attribute :group, :kind_of => String, :default => 'slimta'
 attribute :log_dir, :kind_of => String, :default => '/var/log/slimta'
 attribute :log_file, :kind_of => String
-attribute :tls, :kind_of => [Hash, NilClass], :default => nil
-attribute :edge, :kind_of => [Hash, NilClass], :default => nil
-attribute :rules, :kind_of => [Hash, NilClass], :default => nil
-attribute :queue, :kind_of => [Hash, NilClass], :default => nil
-attribute :relay, :kind_of => [Hash, NilClass], :default => nil
+attribute :tls, :kind_of => Hash, :default => {}
+attribute :lookup, :kind_of => Hash, :default => {}
+attribute :edge, :kind_of => Hash, :default => {}
+attribute :rules, :kind_of => Hash, :default => {}
+attribute :queue, :kind_of => Hash, :default => {}
+attribute :relay, :kind_of => Hash, :default => {}
 attribute :cookbook, :kind_of => String
 
 # vim:sw=2:ts=2:sts=2:et:ai:ft=ruby:

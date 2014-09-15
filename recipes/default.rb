@@ -31,7 +31,11 @@ python_virtualenv venv do
   action :create
 end
 
-packages = ['python-slimta', 'slimta'] + node['slimta']['install_extensions']
+packages = [
+  'python-slimta',
+  'python-slimta-lookup',
+  'slimta',
+] + node['slimta']['install_extensions']
 
 package_locations = node['slimta']['package_locations']
 versions = node['slimta']['version_lock']

@@ -40,11 +40,12 @@ action :create do
   app_cfg_file = new_resource.conf_files.fetch('app', "#{app_name}.yaml")
   log_cfg_file = new_resource.conf_files.fetch('logging', 'logging.yaml')
 
-  tls_info = new_resource.tls || {}
-  edge_info = new_resource.edge || {}
-  rules_info = new_resource.rules || {}
-  queue_info = new_resource.queue || {}
-  relay_info = new_resource.relay || {}
+  tls_info = new_resource.tls
+  lookup_info = new_resource.lookup
+  edge_info = new_resource.edge
+  rules_info = new_resource.rules
+  queue_info = new_resource.queue
+  relay_info = new_resource.relay
 
   # Create the config directory.
   cfg_dir = directory etc_dir do
@@ -96,6 +97,7 @@ action :create do
       :log_dir => new_resource.log_dir,
       :log_file => new_resource.log_file,
       :tls_cfg => tls_info,
+      :lookup_cfg => lookup_info,
       :edge_cfg => edge_info,
       :rules_cfg => rules_info,
       :queue_cfg => queue_info,

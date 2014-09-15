@@ -7,6 +7,16 @@ process:
     stderr: '<%= @log_dir %>/<%= @app_name %>-stderr.log'
     logging: !include <%= @log_cfg_file %>
 
+<% if not @lookup_cfg.empty? -%>
+lookup:
+  <% @lookup_cfg.sort.each do |group, vals| -%>
+  <%= group %>: &lookup_<%= group %>
+    <% vals.sort.each do |key, val| -%>
+    <%= key %>: '<%= val %>'
+    <% end -%>
+  <% end -%>
+
+<% end -%>
 <% if not @rules_cfg.empty? -%>
 rules:
   <% @rules_cfg.each do |group, vals| -%>
@@ -21,17 +31,14 @@ rules:
     <% if vals.fetch('reject_spam', nil) == 'spamassassin' -%>
     reject_spam: {type: spamassassin}
     <% end -%>
-    <% if vals.has_key?('require_credentials') -%>
-    require_credentials:
-      <% vals['require_credentials'].each do |username, password| -%>
-      '<%= username %>': '<%= password %>'
-      <% end -%>
+    <% if vals.has_key?('lookup_senders') -%>
+    lookup_senders: *lookup_<%= vals['lookup_senders'] %>
     <% end -%>
-    <% if vals.has_key?('only_recipients') -%>
-    only_recipients:
-      <% vals['only_recipients'].each do |rcpt| -%>
-      - '<%= rcpt %>'
-      <% end -%>
+    <% if vals.has_key?('lookup_recipients') -%>
+    lookup_recipients: *lookup_<%= vals['lookup_recipients'] %>
+    <% end -%>
+    <% if vals.has_key?('lookup_credentials') -%>
+    lookup_credentials: *lookup_<%= vals['lookup_credentials'] %>
     <% end -%>
   <% end -%>
 
@@ -96,6 +103,9 @@ queue:
           <% policy['mapping'].sort.each do |pattern, dest| -%>
           '<%= pattern %>': '<%= dest %>'
           <% end -%>
+        <% elsif policy['type'] == 'lookup' -%>
+      - type: lookup
+        lookup: *lookup_<%= policy['lookup_group'] %>
         <% else -%>
       - type: <%= policy['type'] %>
         <% end -%>
