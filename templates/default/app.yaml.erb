@@ -91,6 +91,9 @@ queue:
     <% elsif not @relay_cfg.empty? -%>
     relay: <%= @relay_cfg.keys[0] %>
     <% end -%>
+    <% if vals.has_key?('bounce_queue') and vals['bounce_queue'] -%>
+    bounce_queue: <%= vals['bounce_queue'] %>
+    <% end -%>
     <% if vals.has_key?('prefix') and vals['prefix'] -%>
     prefix: '<%= vals['prefix'] %>'
     <% end -%>
