@@ -144,6 +144,9 @@ relay:
     <% if vals.has_key?('path') -%>
     path: <%= vals['path'] %>
     <% end -%>
+    <% if vals.has_key?('ipv4_only') and vals['ipv4_only'] -%>
+    ipv4_only: true
+    <% end -%>
   <% end -%>
 
 <% end -%>
