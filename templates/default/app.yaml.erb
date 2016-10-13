@@ -109,10 +109,10 @@ queue:
         <% elsif policy['type'] == 'lookup' -%>
       - type: lookup
         lookup: *lookup_<%= policy['lookup_group'] %>
-        <% if policy.has_key('on_sender') and policy['on_sender'] -%>
+        <% if policy.has_key?('on_sender') and policy['on_sender'] -%>
         on_sender: true
         <% end -%>
-        <% if policy.has_key('on_recipients') and not policy['on_recipients'] -%>
+        <% if policy.has_key?('on_recipients') and not policy['on_recipients'] -%>
         on_recipients: false
         <% end -%>
         <% else -%>
