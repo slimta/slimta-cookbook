@@ -63,7 +63,9 @@ edge:
     queue: <%= @queue_cfg.keys[0] %>
     <% end -%>
     listener:
+      <% if vals.has_key?('interface') -%>
       interface: '<%= vals['interface'] %>'
+      <% end -%>
       port: <%= vals['port'] %>
     <% if vals.has_key?('tls') and vals['tls'] -%>
     tls: *tls_<%= vals['tls'] %>
