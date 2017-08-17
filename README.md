@@ -1,8 +1,9 @@
 slimta Cookbook
 ===============
+
 Install and configure slimta on a system using Chef.
 
-**NOTE:** This cookbook is incomplete!
+### _THIS COOKBOOK IS DEPRECATED_
 
 Requirements
 ------------
